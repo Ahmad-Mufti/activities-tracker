@@ -12,6 +12,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
+        id: '/',
         name: 'KampusKu',
         short_name: 'KampusKu',
         description: 'Organizer akademik & rohani mahasiswa',
@@ -19,6 +20,7 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
+        lang: 'id',
         icons: [
           {
             src: 'favicon.svg',

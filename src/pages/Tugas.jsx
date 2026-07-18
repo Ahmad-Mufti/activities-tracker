@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Circle, CheckCircle2 } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useSemesters } from '../context/SemesterContext'
+import { useConfirm } from '../context/ConfirmContext'
 import Modal from '../components/Modal'
 import TaskForm from '../components/TaskForm'
 
@@ -16,6 +17,7 @@ const PRIORITY_COLOR = {
 
 export default function Tugas() {
   const { user } = useAuth()
+  const confirm = useConfirm()
   const { activeSemester } = useSemesters()
   const [tasks, setTasks] = useState([])
   const [courses, setCourses] = useState([])
@@ -80,7 +82,13 @@ export default function Tugas() {
   }
 
   async function handleDelete(task) {
-    if (!window.confirm(`Hapus tugas "${task.title}"?`)) return
+    const ok = await confirm({
+      title: 'Hapus tugas?',
+      message: `Hapus tugas "${task.title}"?`,
+      confirmLabel: 'Hapus',
+      danger: true,
+    })
+    if (!ok) return
     const { error } = await supabase.from('tasks').delete().eq('id', task.id)
     if (error) alert(error.message)
   }

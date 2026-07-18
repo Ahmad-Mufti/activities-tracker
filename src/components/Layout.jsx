@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { LayoutDashboard, Calendar, ListTodo, Repeat, Moon, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useNotificationReminders } from '../hooks/useNotificationReminders'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -12,6 +13,7 @@ const navItems = [
 
 export default function Layout() {
   const { signOut } = useAuth()
+  useNotificationReminders()
 
   return (
     <div className="min-h-screen bg-gray-50 md:flex">

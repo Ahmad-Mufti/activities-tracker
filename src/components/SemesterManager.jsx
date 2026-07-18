@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Pencil, Trash2, Check, Plus } from 'lucide-react'
 import { useSemesters } from '../context/SemesterContext'
+import { useConfirm } from '../context/ConfirmContext'
 
 const emptyForm = { name: '', start_date: '', end_date: '' }
 
 export default function SemesterManager() {
   const { semesters, createSemester, updateSemester, deleteSemester, setActive } = useSemesters()
+  const confirm = useConfirm()
   const [form, setForm] = useState(emptyForm)
   const [editingId, setEditingId] = useState(null)
   const [error, setError] = useState('')
@@ -34,6 +36,14 @@ export default function SemesterManager() {
       setError('Tanggal berakhir harus setelah tanggal mulai.')
       return
     }
+
+    const ok = await confirm({
+      title: editingId ? 'Simpan perubahan?' : 'Tambah semester?',
+      message: editingId ? `Simpan perubahan untuk semester "${form.name}"?` : `Tambahkan semester "${form.name}"?`,
+      confirmLabel: editingId ? 'Simpan' : 'Tambah',
+    })
+    if (!ok) return
+
     setBusy(true)
     try {
       if (editingId) {
@@ -49,9 +59,13 @@ export default function SemesterManager() {
   }
 
   async function handleDelete(s) {
-    if (!window.confirm(`Hapus semester "${s.name}"? Semua jadwal mata kuliah di dalamnya ikut terhapus.`)) {
-      return
-    }
+    const ok = await confirm({
+      title: 'Hapus semester?',
+      message: `Hapus semester "${s.name}"? Semua jadwal mata kuliah di dalamnya ikut terhapus.`,
+      confirmLabel: 'Hapus',
+      danger: true,
+    })
+    if (!ok) return
     try {
       await deleteSemester(s.id)
     } catch (err) {

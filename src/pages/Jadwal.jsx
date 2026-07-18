@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Settings, LayoutGrid } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useSemesters } from '../context/SemesterContext'
+import { useConfirm } from '../context/ConfirmContext'
 import Modal from '../components/Modal'
 import CourseForm from '../components/CourseForm'
 import SemesterManager from '../components/SemesterManager'
@@ -20,6 +21,7 @@ function getInitialColumns() {
 
 export default function Jadwal() {
   const { user } = useAuth()
+  const confirm = useConfirm()
   const { semesters, activeSemester, loading: loadingSemesters, setActive } = useSemesters()
   const [courses, setCourses] = useState([])
   const [loadingCourses, setLoadingCourses] = useState(true)
@@ -66,7 +68,13 @@ export default function Jadwal() {
   }, [user, fetchCourses])
 
   async function handleDeleteCourse(course) {
-    if (!window.confirm(`Hapus mata kuliah "${course.name}"?`)) return
+    const ok = await confirm({
+      title: 'Hapus mata kuliah?',
+      message: `Hapus mata kuliah "${course.name}"?`,
+      confirmLabel: 'Hapus',
+      danger: true,
+    })
+    if (!ok) return
     const { error } = await supabase.from('courses').delete().eq('id', course.id)
     if (error) alert(error.message)
   }

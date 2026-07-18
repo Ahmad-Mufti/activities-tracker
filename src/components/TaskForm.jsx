@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useConfirm } from '../context/ConfirmContext'
 
 function toLocalInputValue(timestamptz) {
   if (!timestamptz) return ''
@@ -9,6 +10,7 @@ function toLocalInputValue(timestamptz) {
 }
 
 export default function TaskForm({ task, courses, onDone }) {
+  const confirm = useConfirm()
   const isEdit = Boolean(task?.id)
   const [title, setTitle] = useState(task?.title ?? '')
   const [description, setDescription] = useState(task?.description ?? '')
@@ -27,6 +29,13 @@ export default function TaskForm({ task, courses, onDone }) {
       setError('Judul wajib diisi.')
       return
     }
+
+    const ok = await confirm({
+      title: isEdit ? 'Simpan perubahan?' : 'Tambah tugas?',
+      message: isEdit ? `Simpan perubahan untuk tugas "${title.trim()}"?` : `Tambahkan tugas "${title.trim()}"?`,
+      confirmLabel: isEdit ? 'Simpan' : 'Tambah',
+    })
+    if (!ok) return
 
     setBusy(true)
     const payload = {
@@ -47,6 +56,7 @@ export default function TaskForm({ task, courses, onDone }) {
       setError(error.message)
       return
     }
+
     onDone()
   }
 

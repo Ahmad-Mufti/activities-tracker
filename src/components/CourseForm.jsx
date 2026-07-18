@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { DAYS } from '../lib/days'
+import { useConfirm } from '../context/ConfirmContext'
 
 const COLORS = ['#3b82f6', '#22c55e', '#f97316', '#ef4444', '#a855f7', '#eab308', '#06b6d4']
 
 export default function CourseForm({ course, semesterId, onDone }) {
+  const confirm = useConfirm()
   const isEdit = Boolean(course?.id)
   const [name, setName] = useState(course?.name ?? '')
   const [lecturer, setLecturer] = useState(course?.lecturer ?? '')
@@ -24,6 +26,13 @@ export default function CourseForm({ course, semesterId, onDone }) {
       setError('Jam selesai harus setelah jam mulai.')
       return
     }
+
+    const ok = await confirm({
+      title: isEdit ? 'Simpan perubahan?' : 'Tambah mata kuliah?',
+      message: isEdit ? `Simpan perubahan untuk mata kuliah "${name}"?` : `Tambahkan mata kuliah "${name}"?`,
+      confirmLabel: isEdit ? 'Simpan' : 'Tambah',
+    })
+    if (!ok) return
 
     setBusy(true)
     const payload = {
@@ -46,6 +55,7 @@ export default function CourseForm({ course, semesterId, onDone }) {
       setError(error.message)
       return
     }
+
     onDone()
   }
 
