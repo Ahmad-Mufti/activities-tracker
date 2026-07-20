@@ -4,17 +4,15 @@ import { supabase } from '../supabaseClient'
 import { DAYS } from '../lib/days'
 import { computePrayerTimes, computeSlotBoundaries, formatTime, formatDuration, PRAYER_LABELS, PRAYER_ORDER } from '../lib/prayerTimes'
 
-function decimalHoursToTimeStr(hours) {
+function decimalHoursToParts(hours) {
   const total = Math.round(Number(hours ?? 0) * 60)
-  const h = Math.floor(total / 60)
-  const m = total % 60
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+  return { h: Math.floor(total / 60), m: total % 60 }
 }
 
-function timeStrToDecimalHours(timeStr) {
-  const [h, m] = (timeStr || '0:0').split(':').map(Number)
-  if (Number.isNaN(h) || Number.isNaN(m)) return 0
-  return h + m / 60
+function partsToDecimalHours(h, m) {
+  const hh = Number(h)
+  const mm = Number(m)
+  return (Number.isNaN(hh) ? 0 : hh) + (Number.isNaN(mm) ? 0 : mm) / 60
 }
 
 const CALC_METHODS = [
@@ -29,7 +27,8 @@ const CALC_METHODS = [
 export default function PengaturanTab() {
   const [cap, setCap] = useState(15)
   const [dayOff, setDayOff] = useState(7)
-  const [sleepHours, setSleepHours] = useState(7)
+  const [sleepH, setSleepH] = useState(7)
+  const [sleepM, setSleepM] = useState(0)
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
   const [calcMethod, setCalcMethod] = useState('KEMENAG')
@@ -55,7 +54,9 @@ export default function PengaturanTab() {
         if (data) {
           setCap(data.muraja_daily_cap ?? 15)
           setDayOff(data.day_off_of_week ?? 7)
-          setSleepHours(data.sleep_hours ?? 7)
+          const { h, m } = decimalHoursToParts(data.sleep_hours ?? 7)
+          setSleepH(h)
+          setSleepM(m)
           setLatitude(data.latitude ?? '')
           setLongitude(data.longitude ?? '')
           setCalcMethod(data.calc_method ?? 'KEMENAG')
@@ -73,7 +74,7 @@ export default function PengaturanTab() {
       {
         muraja_daily_cap: Number(cap),
         day_off_of_week: Number(dayOff),
-        sleep_hours: Number(sleepHours),
+        sleep_hours: partsToDecimalHours(sleepH, sleepM),
         latitude: latitude === '' ? null : Number(latitude),
         longitude: longitude === '' ? null : Number(longitude),
         calc_method: calcMethod,
@@ -138,9 +139,14 @@ export default function PengaturanTab() {
     if (Number.isNaN(lat) || Number.isNaN(lng)) return null
     return {
       times: computePrayerTimes({ latitude: lat, longitude: lng, calcMethod }),
-      slots: computeSlotBoundaries({ latitude: lat, longitude: lng, calcMethod, sleepHours }),
+      slots: computeSlotBoundaries({
+        latitude: lat,
+        longitude: lng,
+        calcMethod,
+        sleepHours: partsToDecimalHours(sleepH, sleepM),
+      }),
     }
-  }, [latitude, longitude, calcMethod, sleepHours])
+  }, [latitude, longitude, calcMethod, sleepH, sleepM])
 
   if (loading) {
     return <p className="text-gray-400">Memuat...</p>
@@ -183,17 +189,34 @@ export default function PengaturanTab() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Jam Tidur (per malam)</label>
-          <input
-            type="time"
-            required
-            value={decimalHoursToTimeStr(sleepHours)}
-            onChange={(e) => setSleepHours(timeStrToDecimalHours(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          />
+          <label className="block text-sm font-medium text-gray-700">Lama Tidur (per malam)</label>
+          <div className="mt-1 flex items-center gap-2">
+            <input
+              type="number"
+              inputMode="numeric"
+              required
+              min="0"
+              max="23"
+              value={sleepH}
+              onChange={(e) => setSleepH(e.target.value)}
+              className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+            <span className="text-sm text-gray-500">jam</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              required
+              min="0"
+              max="59"
+              value={sleepM}
+              onChange={(e) => setSleepM(e.target.value)}
+              className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+            <span className="text-sm text-gray-500">menit</span>
+          </div>
           <p className="mt-1 text-xs text-gray-400">
-            Format jam:menit — lama tidur, bukan jam berapa tidur. Dipakai menghitung waktu luang & batas slot "malam"
-            (Isya → jam tidur).
+            Lama tidur (durasi), bukan jam berapa kamu tidur. Contoh: 7 jam 30 menit. Dipakai menghitung waktu luang &
+            batas slot "malam" (Isya → jam tidur).
           </p>
         </div>
 
@@ -285,7 +308,7 @@ export default function PengaturanTab() {
       )}
 
       {saved && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-lg">
+        <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-lg md:bottom-4">
           Pengaturan tersimpan.
         </div>
       )}
