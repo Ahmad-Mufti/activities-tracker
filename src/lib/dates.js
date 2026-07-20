@@ -14,6 +14,11 @@ export function addDays(dateStr, delta) {
   return toLocalISO(date)
 }
 
+export function fromLocalISO(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
 // 1=Senin..7=Minggu, sama seperti konvensi courses.day_of_week
 export function isoDayOfWeek(date) {
   const day = date.getDay() // bawaan JS: 0=Minggu..6=Sabtu

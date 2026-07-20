@@ -9,7 +9,9 @@ const STAGE_OPTIONS = [
   { value: 1, label: 'Cukup — diulang tiap 3 hari' },
   { value: 2, label: 'Lumayan kuat — diulang tiap 7 hari' },
   { value: 3, label: 'Kuat — diulang tiap 14 hari' },
-  { value: 4, label: 'Sangat kuat / sudah lama — diulang tiap 30 hari' },
+  { value: 4, label: 'Sangat kuat — diulang tiap 30 hari' },
+  { value: 5, label: 'Mapan / sudah lama — diulang tiap 60 hari' },
+  { value: 6, label: 'Sangat mapan / bertahun-tahun — diulang tiap 120 hari' },
 ]
 
 export default function OldHafalanForm({ plan, onDone }) {

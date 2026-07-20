@@ -68,7 +68,7 @@ export default function MurajaahTab() {
 
   async function markResult(unit, result) {
     setBusyUnitId(unit.id)
-    const newStage = result === 'lancar' ? Math.min(unit.review_stage + 1, 4) : 0
+    const newStage = result === 'lancar' ? Math.min(unit.review_stage + 1, 6) : 0
     const interval = result === 'lancar' ? reviewInterval(newStage) : 1
     const nextReviewDate = addDays(today, interval)
 
@@ -108,7 +108,7 @@ export default function MurajaahTab() {
               <div>
                 <p className="font-medium text-gray-800">{unit.unit_ref}</p>
                 <p className="text-xs text-gray-400">
-                  {unit.hafalan_plans?.name} · tahap {unit.review_stage + 1}/5
+                  {unit.hafalan_plans?.name} · tahap {unit.review_stage + 1}/7
                 </p>
               </div>
               <div className="flex gap-2">
