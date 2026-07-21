@@ -50,7 +50,7 @@ PWA, real-time sync antar perangkat, solo, gratis total.
 - [x] Fase 6 — Modul Rohani dasar (baca, kajian, hafalan)
 - [x] Fase 7 — Mesin Muraja'ah berjenjang
 - [x] Fase 8 — Dashboard "Hari Ini" + Jadwal Sholat
-- [ ] Fase 9 — Quick-capture (Inbox) *(mulai dari sini)*
+- [x] Fase 9 — Quick-capture (Inbox)
 - [ ] Fase 10 — Notifikasi Push sungguhan
 - [ ] Fase 11 — Anggaran waktu, prioritas & event pintar
 - [ ] Fase 12 — Weekly Review
