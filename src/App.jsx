@@ -8,6 +8,7 @@ import Jadwal from './pages/Jadwal'
 import Tugas from './pages/Tugas'
 import Kebiasaan from './pages/Kebiasaan'
 import Rohani from './pages/Rohani'
+import Inbox from './pages/Inbox'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/tugas" element={<Tugas />} />
           <Route path="/kebiasaan" element={<Kebiasaan />} />
           <Route path="/rohani" element={<Rohani />} />
+          <Route path="/inbox" element={<Inbox />} />
         </Route>
       </Route>
     </Routes>

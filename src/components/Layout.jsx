@@ -1,7 +1,9 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Calendar, ListTodo, Repeat, Moon, LogOut } from 'lucide-react'
+import { LayoutDashboard, Calendar, ListTodo, Repeat, Moon, Inbox as InboxIcon, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNotificationReminders } from '../hooks/useNotificationReminders'
+import { useInboxCount } from '../hooks/useInboxCount'
+import QuickCaptureButton from './QuickCaptureButton'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -9,10 +11,12 @@ const navItems = [
   { to: '/tugas', label: 'Tugas', icon: ListTodo },
   { to: '/kebiasaan', label: 'Kebiasaan', icon: Repeat },
   { to: '/rohani', label: 'Rohani', icon: Moon },
+  { to: '/inbox', label: 'Inbox', icon: InboxIcon },
 ]
 
 export default function Layout() {
   const { signOut } = useAuth()
+  const inboxCount = useInboxCount()
   useNotificationReminders()
 
   return (
@@ -34,6 +38,11 @@ export default function Layout() {
             >
               <Icon size={18} />
               {label}
+              {to === '/inbox' && inboxCount > 0 && (
+                <span className="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {inboxCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -67,16 +76,23 @@ export default function Layout() {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium ${
+              `relative flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium ${
                 isActive ? 'text-blue-600' : 'text-gray-500'
               }`
             }
           >
             <Icon size={20} />
             {label}
+            {to === '/inbox' && inboxCount > 0 && (
+              <span className="absolute right-3 top-0.5 rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                {inboxCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
+
+      <QuickCaptureButton />
     </div>
   )
 }
