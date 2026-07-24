@@ -1,0 +1,4 @@
+# Supabase CLI — state lokal, jangan di-commit
+.branches
+.temp
+.env

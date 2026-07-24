@@ -3,6 +3,7 @@ import { MapPin } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 import { DAYS } from '../lib/days'
 import { computePrayerTimes, computeSlotBoundaries, formatTime, formatDuration, PRAYER_LABELS, PRAYER_ORDER } from '../lib/prayerTimes'
+import NotificationToggle from './NotificationToggle'
 
 function decimalHoursToParts(hours) {
   const total = Math.round(Number(hours ?? 0) * 60)
@@ -154,6 +155,8 @@ export default function PengaturanTab() {
 
   return (
     <div className="max-w-sm space-y-8">
+      <NotificationToggle />
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Batas Muraja'ah per Hari</label>

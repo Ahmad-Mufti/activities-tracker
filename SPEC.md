@@ -396,6 +396,21 @@ create table inbox_items (
 
 (Jangan lupa RLS dengan pola di awal Bagian 5.)
 
+### 5.9 Push Subscriptions (Fase 10)
+
+```sql
+create table push_subscriptions (      -- 1 baris per device/browser yang subscribe
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users not null default auth.uid(),
+  endpoint text not null unique,
+  p256dh text not null,
+  auth_key text not null,
+  created_at timestamptz default now()
+);
+```
+
+(Jangan lupa RLS dengan pola di awal Bagian 5.)
+
 ### 5.8 Migrasi untuk DB yang sudah berjalan
 
 DB sudah live sejak revisi ini — jalankan **sekali** di Supabase SQL Editor:
@@ -408,7 +423,9 @@ alter table user_settings add column if not exists latitude numeric;
 alter table user_settings add column if not exists longitude numeric;
 alter table user_settings add column if not exists calc_method text default 'KEMENAG';
 alter table user_settings add column if not exists last_review_at timestamptz;
+alter table tasks add column if not exists deadline_push_sent_at timestamptz;
 -- lalu buat tabel inbox_items (5.7) + RLS-nya
+-- lalu buat tabel push_subscriptions (5.9) + RLS-nya
 ```
 
 ---

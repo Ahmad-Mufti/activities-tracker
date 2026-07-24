@@ -1,27 +1,16 @@
-import { useState } from 'react'
-import { Bell, BellOff } from 'lucide-react'
+import { Bell } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { usePushSubscription } from '../hooks/usePushSubscription'
 
-const SUPPORTED = typeof window !== 'undefined' && 'Notification' in window
-
+// Nudge ringan di Dashboard: hanya muncul saat notifikasi BELUM aktif di device
+// ini. Untuk menyalakan/mematikan kapan saja, ada saklar permanen di Pengaturan.
 export default function NotificationPermissionCard() {
-  const [permission, setPermission] = useState(SUPPORTED ? Notification.permission : 'unsupported')
+  const { supported, configured, permission, subscribed, loading, busy, enable } = usePushSubscription()
 
-  if (!SUPPORTED || permission === 'granted') {
+  // Sembunyikan kalau: tak didukung, masih memuat status, sudah aktif, diblokir,
+  // atau kunci VAPID belum diatur (biar tak menyuruh menekan tombol yang gagal).
+  if (!supported || loading || subscribed || permission === 'denied' || !configured) {
     return null
-  }
-
-  if (permission === 'denied') {
-    return (
-      <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-500">
-        <BellOff size={16} />
-        Notifikasi diblokir di browser ini. Aktifkan lewat pengaturan situs kalau berubah pikiran.
-      </div>
-    )
-  }
-
-  async function handleEnable() {
-    const result = await Notification.requestPermission()
-    setPermission(result)
   }
 
   return (
@@ -30,12 +19,18 @@ export default function NotificationPermissionCard() {
         <Bell size={16} />
         Aktifkan notifikasi supaya diingatkan jadwal & tugas yang mendekat.
       </div>
-      <button
-        onClick={handleEnable}
-        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
-      >
-        Aktifkan
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={enable}
+          disabled={busy}
+          className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {busy ? 'Mengaktifkan…' : 'Aktifkan'}
+        </button>
+        <Link to="/rohani" className="text-xs font-medium text-blue-600 hover:underline">
+          Atur di Pengaturan
+        </Link>
+      </div>
     </div>
   )
 }
