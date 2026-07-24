@@ -69,18 +69,21 @@ async function sendToUser(
   }
 }
 
-async function listAllUserIds(stats: Stats): Promise<string[]> {
-  const { data, error } = await supabase.auth.admin.listUsers()
+// Ambil user yang PUNYA subscription push — hanya mereka yang perlu dikirimi.
+// (Sekaligus menghindari auth.admin.listUsers() yang butuh admin JWT & gagal
+// kalau project sudah memakai signing key ES256 baru.)
+async function listSubscribedUserIds(stats: Stats): Promise<string[]> {
+  const { data, error } = await supabase.from('push_subscriptions').select('user_id')
   if (error) {
-    stats.errors.push(`listUsers: ${error.message}`)
+    stats.errors.push(`list subscribed users: ${error.message}`)
     return []
   }
-  return data.users.map((u) => u.id)
+  return [...new Set((data ?? []).map((r) => r.user_id))]
 }
 
 async function runMorningDigest(stats: Stats) {
   const today = todayLocalISO()
-  const userIds = await listAllUserIds(stats)
+  const userIds = await listSubscribedUserIds(stats)
   stats.usersChecked = userIds.length
 
   for (const userId of userIds) {
