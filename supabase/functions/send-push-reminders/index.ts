@@ -156,6 +156,7 @@ async function runDeadlineCheck(stats: Stats) {
         body: `"${t.title}" jatuh tempo ${new Date(t.due_date).toLocaleString('id-ID', {
           dateStyle: 'medium',
           timeStyle: 'short',
+          timeZone: 'Asia/Jakarta',
         })}`,
         tag: `task-${t.id}`,
         url: '/tugas',
