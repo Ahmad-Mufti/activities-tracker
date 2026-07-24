@@ -649,7 +649,7 @@ Jadwal sholat adalah jangkar harian user — kebiasaan nyata yang sudah jalan: *
 - [ ] Event menimpa & memicu penyesuaian; bentrok kuliah ditandai.
 - [ ] Jadwal sholat tampil paling atas Dashboard; batas slot dinamis dari jam sholat asli.
 - [ ] Quick-capture: catat ≤5 detik dari layar mana pun; inbox terpilah jadi tugas/event/kebiasaan.
-- [ ] Push sungguhan: pengingat masuk saat app tertutup / HP terkunci.
+- [x] Push sungguhan: pengingat masuk saat app tertutup / HP terkunci.
 - [ ] Beban mingguan proyek mengurangi waktu luang tanpa hitung-ganda dengan event ber-`project_id`.
 - [ ] Weekly review Minggu selesai ≤5 menit; `weekly_hours` terkalibrasi ulang.
 - [ ] Workout sebagai 2 kebiasaan sederhana (10-10-10 Rutin; jogging Bonus) — tanpa modul khusus.
