@@ -330,7 +330,8 @@ create table user_settings (
   latitude numeric,                    -- lokasi utk hitung jam sholat lokal (adhan-js, offline)
   longitude numeric,
   calc_method text default 'KEMENAG',  -- metode perhitungan jam sholat (default Indonesia)
-  last_review_at timestamptz           -- kapan weekly review terakhir (Fase 12)
+  last_review_at timestamptz,          -- kapan weekly review terakhir (Fase 12)
+  timezone text                        -- zona waktu perangkat (auto-deteksi Intl, mis. Asia/Makassar); format jam notifikasi (Fase 10)
 );
 ```
 
@@ -424,6 +425,7 @@ alter table user_settings add column if not exists longitude numeric;
 alter table user_settings add column if not exists calc_method text default 'KEMENAG';
 alter table user_settings add column if not exists last_review_at timestamptz;
 alter table tasks add column if not exists deadline_push_sent_at timestamptz;
+alter table user_settings add column if not exists timezone text;
 -- lalu buat tabel inbox_items (5.7) + RLS-nya
 -- lalu buat tabel push_subscriptions (5.9) + RLS-nya
 ```

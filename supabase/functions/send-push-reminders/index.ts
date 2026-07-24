@@ -23,6 +23,10 @@ webpush.setVapidDetails(
   Deno.env.get('VAPID_PRIVATE_KEY')!,
 )
 
+// Zona waktu default bila user belum tersimpan (auto-deteksi di frontend mengisi
+// user_settings.timezone; ini fallback-nya).
+const DEFAULT_TZ = 'Asia/Jakarta'
+
 const WIB_OFFSET_MS = 7 * 60 * 60 * 1000
 
 function nowWIB() {
@@ -79,6 +83,17 @@ async function listSubscribedUserIds(stats: Stats): Promise<string[]> {
     return []
   }
   return [...new Set((data ?? []).map((r) => r.user_id))]
+}
+
+// Zona waktu user untuk memformat jam di notifikasi (auto-deteksi frontend ->
+// user_settings.timezone). Di-cache supaya tak query berulang untuk user sama.
+async function getUserTimezone(userId: string, cache: Map<string, string>): Promise<string> {
+  const cached = cache.get(userId)
+  if (cached) return cached
+  const { data } = await supabase.from('user_settings').select('timezone').eq('user_id', userId).maybeSingle()
+  const tz = data?.timezone || DEFAULT_TZ
+  cache.set(userId, tz)
+  return tz
 }
 
 async function runMorningDigest(stats: Stats) {
@@ -147,8 +162,10 @@ async function runDeadlineCheck(stats: Stats) {
     .lte('due_date', in3h.toISOString())
 
   stats.usersChecked = new Set((tasks ?? []).map((t) => t.user_id)).size
+  const tzCache = new Map<string, string>()
 
   for (const t of tasks ?? []) {
+    const tz = await getUserTimezone(t.user_id, tzCache)
     await sendToUser(
       t.user_id,
       {
@@ -156,7 +173,7 @@ async function runDeadlineCheck(stats: Stats) {
         body: `"${t.title}" jatuh tempo ${new Date(t.due_date).toLocaleString('id-ID', {
           dateStyle: 'medium',
           timeStyle: 'short',
-          timeZone: 'Asia/Jakarta',
+          timeZone: tz,
         })}`,
         tag: `task-${t.id}`,
         url: '/tugas',

@@ -3,6 +3,7 @@ import { LayoutDashboard, Calendar, ListTodo, Repeat, Moon, Inbox as InboxIcon, 
 import { useAuth } from '../context/AuthContext'
 import { useNotificationReminders } from '../hooks/useNotificationReminders'
 import { useInboxCount } from '../hooks/useInboxCount'
+import { useSyncTimezone } from '../hooks/useSyncTimezone'
 import QuickCaptureButton from './QuickCaptureButton'
 
 const navItems = [
@@ -18,6 +19,7 @@ export default function Layout() {
   const { signOut } = useAuth()
   const inboxCount = useInboxCount()
   useNotificationReminders()
+  useSyncTimezone()
 
   return (
     <div className="min-h-screen bg-gray-50 md:flex">
