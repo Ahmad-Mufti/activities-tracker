@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, Settings, LayoutGrid } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Plus, Pencil, Trash2, Settings, LayoutGrid, Repeat } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useSemesters } from '../context/SemesterContext'
@@ -7,6 +7,7 @@ import { useConfirm } from '../context/ConfirmContext'
 import Modal from '../components/Modal'
 import CourseForm from '../components/CourseForm'
 import SemesterManager from '../components/SemesterManager'
+import RecurringEventForm from '../components/RecurringEventForm'
 import { DAYS } from '../lib/days'
 
 const COLUMN_OPTIONS = [1, 2, 3, 4, 7]
@@ -28,6 +29,9 @@ export default function Jadwal() {
   const [showSemesterManager, setShowSemesterManager] = useState(false)
   const [editingCourse, setEditingCourse] = useState(null) // null = tertutup, {} = baru, {...} = edit
   const [columns, setColumns] = useState(getInitialColumns)
+  const [recurringEvents, setRecurringEvents] = useState([])
+  const [projects, setProjects] = useState([])
+  const [editingRecurring, setEditingRecurring] = useState(null) // null = tertutup, {} = baru, {...} = edit
 
   function handleColumnsChange(n) {
     setColumns(n)
@@ -76,6 +80,60 @@ export default function Jadwal() {
     })
     if (!ok) return
     const { error } = await supabase.from('courses').delete().eq('id', course.id)
+    if (error) alert(error.message)
+  }
+
+  const fetchRecurringEvents = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('recurring_events')
+      .select('*, projects(name)')
+      .order('day_of_week', { ascending: true })
+      .order('start_time', { ascending: true })
+    if (!error) setRecurringEvents(data)
+  }, [])
+
+  useEffect(() => {
+    fetchRecurringEvents()
+    supabase
+      .from('projects')
+      .select('id, name')
+      .eq('status', 'active')
+      .then(({ data, error }) => {
+        if (!error) setProjects(data)
+      })
+  }, [fetchRecurringEvents])
+
+  useEffect(() => {
+    if (!user) return
+    const channel = supabase
+      .channel('recurring-events-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'recurring_events', filter: `user_id=eq.${user.id}` },
+        fetchRecurringEvents,
+      )
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [user, fetchRecurringEvents])
+
+  const recurringByDay = useMemo(() => {
+    const map = new Map()
+    for (const r of recurringEvents) {
+      if (!map.has(r.day_of_week)) map.set(r.day_of_week, [])
+      map.get(r.day_of_week).push(r)
+    }
+    return map
+  }, [recurringEvents])
+
+  async function handleDeleteRecurring(item) {
+    const ok = await confirm({
+      title: 'Hapus kegiatan rutin?',
+      message: `Hapus kegiatan rutin "${item.title}"?`,
+      confirmLabel: 'Hapus',
+      danger: true,
+    })
+    if (!ok) return
+    const { error } = await supabase.from('recurring_events').delete().eq('id', item.id)
     if (error) alert(error.message)
   }
 
@@ -199,6 +257,67 @@ export default function Jadwal() {
             ))}
           </div>
         </>
+      )}
+
+      <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <Repeat size={16} /> Kegiatan Rutin Mingguan (non-kuliah)
+          </h2>
+          <button
+            onClick={() => setEditingRecurring({})}
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <Plus size={14} /> Tambah Kegiatan Rutin
+          </button>
+        </div>
+        <div className="mt-3 space-y-2">
+          {recurringEvents.length === 0 && (
+            <p className="text-sm text-gray-400">
+              Belum ada kegiatan rutin (mis. rapat organisasi mingguan). Item ini berdiri sendiri, tidak terikat semester.
+            </p>
+          )}
+          {DAYS.filter((day) => recurringByDay.has(day.value)).map((day) => (
+            <div key={day.value}>
+              <p className="text-xs font-semibold text-gray-500">{day.label}</p>
+              <div className="mt-1 space-y-1.5">
+                {recurringByDay.get(day.value).map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-center justify-between gap-2 rounded-lg border-l-4 bg-gray-50 p-2 text-sm"
+                    style={{ borderLeftColor: r.color }}
+                  >
+                    <div>
+                      <p className="font-medium text-gray-800">{r.title}</p>
+                      <p className="text-xs text-gray-500">
+                        {r.start_time?.slice(0, 5) ?? '--:--'}–{r.end_time?.slice(0, 5) ?? '--:--'}
+                        {r.category && ` · ${r.category}`}
+                        {r.projects?.name && ` · ${r.projects.name}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setEditingRecurring(r)} title="Edit" className="text-blue-600 hover:text-blue-700">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => handleDeleteRecurring(r)} title="Hapus" className="text-red-600 hover:text-red-700">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {editingRecurring !== null && (
+        <Modal
+          title={editingRecurring.id ? 'Edit Kegiatan Rutin' : 'Tambah Kegiatan Rutin'}
+          onClose={() => setEditingRecurring(null)}
+        >
+          <RecurringEventForm item={editingRecurring} projects={projects} onDone={() => setEditingRecurring(null)} />
+        </Modal>
       )}
 
       {editingCourse !== null && activeSemester && (

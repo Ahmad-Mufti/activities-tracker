@@ -21,6 +21,7 @@ export default function Tugas() {
   const { activeSemester } = useSemesters()
   const [tasks, setTasks] = useState([])
   const [courses, setCourses] = useState([])
+  const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
@@ -66,6 +67,16 @@ export default function Tugas() {
         if (!error) setCourses(data)
       })
   }, [activeSemester])
+
+  useEffect(() => {
+    supabase
+      .from('projects')
+      .select('id, name')
+      .eq('status', 'active')
+      .then(({ data, error }) => {
+        if (!error) setProjects(data)
+      })
+  }, [])
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
@@ -173,7 +184,7 @@ export default function Tugas() {
 
       {editingTask !== null && (
         <Modal title={editingTask.id ? 'Edit Tugas' : 'Tambah Tugas'} onClose={() => setEditingTask(null)}>
-          <TaskForm task={editingTask} courses={courses} onDone={() => setEditingTask(null)} />
+          <TaskForm task={editingTask} courses={courses} projects={projects} onDone={() => setEditingTask(null)} />
         </Modal>
       )}
     </div>

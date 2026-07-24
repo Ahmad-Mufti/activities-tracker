@@ -67,8 +67,17 @@ export function getNextPrayer({ latitude, longitude, calcMethod }, now = new Dat
   return { key: 'fajr', label: PRAYER_LABELS.fajr, time: tomorrow.fajr }
 }
 
-// Batas slot dinamis (SPEC 6D) — dipakai anggaran waktu per-slot penuh di Fase 11,
-// di Fase 8 cukup ditampilkan sebagai referensi.
+// Daftar statis slot (kunci + label) — dipakai dropdown pemilihan slot di form (tak butuh koordinat).
+export const SLOT_OPTIONS = [
+  { key: 'bada_subuh', label: "Ba'da Subuh" },
+  { key: 'pagi', label: 'Pagi' },
+  { key: 'bada_dzuhur', label: "Ba'da Dzuhur" },
+  { key: 'sore', label: 'Sore' },
+  { key: 'bada_maghrib', label: "Ba'da Maghrib" },
+  { key: 'malam', label: 'Malam' },
+]
+
+// Batas slot dinamis (SPEC 6D) — dipakai anggaran waktu per-slot penuh di Fase 11.
 export function computeSlotBoundaries({ latitude, longitude, calcMethod, sleepHours = 7, date = new Date() }) {
   const today = computePrayerTimes({ latitude, longitude, calcMethod, date })
   if (!today) return []

@@ -84,9 +84,9 @@ export default function Kebiasaan() {
   const logsByHabit = useMemo(() => {
     const map = new Map()
     for (const log of logs) {
-      if (!map.has(log.habit_id)) map.set(log.habit_id, { dates: new Set(), today: null })
+      if (!map.has(log.habit_id)) map.set(log.habit_id, { byDate: new Map(), today: null })
       const entry = map.get(log.habit_id)
-      entry.dates.add(log.log_date)
+      entry.byDate.set(log.log_date, log)
       if (log.log_date === today) entry.today = log
     }
     return map
@@ -135,7 +135,7 @@ export default function Kebiasaan() {
           <HabitRow
             key={habit.id}
             habit={habit}
-            loggedDates={logsByHabit.get(habit.id)?.dates ?? new Set()}
+            logsByDate={logsByHabit.get(habit.id)?.byDate ?? new Map()}
             todayLog={logsByHabit.get(habit.id)?.today ?? null}
             today={today}
             onEdit={setEditingHabit}

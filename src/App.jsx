@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Jadwal from './pages/Jadwal'
 import Tugas from './pages/Tugas'
+import Proyek from './pages/Proyek'
 import Kebiasaan from './pages/Kebiasaan'
 import Rohani from './pages/Rohani'
 import Inbox from './pages/Inbox'
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/jadwal" element={<Jadwal />} />
           <Route path="/tugas" element={<Tugas />} />
+          <Route path="/proyek" element={<Proyek />} />
           <Route path="/kebiasaan" element={<Kebiasaan />} />
           <Route path="/rohani" element={<Rohani />} />
           <Route path="/inbox" element={<Inbox />} />

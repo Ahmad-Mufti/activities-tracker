@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useConfirm } from '../context/ConfirmContext'
+import { PriorityTierSelect, DurationMinutesField, TimeSlotSelect } from './PriorityFields'
 
 export default function ReadingPlanForm({ plan, onDone }) {
   const confirm = useConfirm()
@@ -10,6 +11,12 @@ export default function ReadingPlanForm({ plan, onDone }) {
   const [unitLabel, setUnitLabel] = useState(plan?.unit_label ?? 'halaman')
   const [totalUnits, setTotalUnits] = useState(plan?.total_units ?? '')
   const [currentPosition, setCurrentPosition] = useState(plan?.current_position ?? 0)
+  const [floorAmount, setFloorAmount] = useState(plan?.floor_amount ?? '')
+  const [targetAmount, setTargetAmount] = useState(plan?.target_amount ?? '')
+  // Baca = "nyala pokok" (prinsip menjaga > menambah) — default Wajib sesuai tabel 6B.
+  const [priorityTier, setPriorityTier] = useState(plan?.priority_tier ?? 'wajib')
+  const [estDurationMin, setEstDurationMin] = useState(plan?.est_duration_min ?? '')
+  const [timeSlot, setTimeSlot] = useState(plan?.time_slot ?? '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -36,6 +43,11 @@ export default function ReadingPlanForm({ plan, onDone }) {
       unit_label: unitLabel || 'halaman',
       total_units: Number(totalUnits),
       current_position: Number(currentPosition) || 0,
+      floor_amount: floorAmount === '' ? null : Number(floorAmount),
+      target_amount: targetAmount === '' ? null : Number(targetAmount),
+      priority_tier: priorityTier,
+      est_duration_min: estDurationMin === '' ? null : Number(estDurationMin),
+      time_slot: timeSlot || null,
     }
 
     const { error } = isEdit
@@ -106,6 +118,36 @@ export default function ReadingPlanForm({ plan, onDone }) {
         />
         <p className="mt-1 text-xs text-gray-400">Kosongkan / 0 kalau mulai dari awal.</p>
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Target Harian (opsional)</label>
+          <input
+            type="number"
+            min="0"
+            step="any"
+            value={targetAmount}
+            onChange={(e) => setTargetAmount(e.target.value)}
+            placeholder={`mis. 1 ${unitLabel}`}
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Lantai Harian (opsional)</label>
+          <input
+            type="number"
+            min="0"
+            step="any"
+            value={floorAmount}
+            onChange={(e) => setFloorAmount(e.target.value)}
+            placeholder="mis. 1"
+            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <p className="text-xs text-gray-400">Lantai = minimal penyelamat hari sibuk; streak tetap aman selama lantai tercapai.</p>
+      <PriorityTierSelect value={priorityTier} onChange={setPriorityTier} />
+      <DurationMinutesField value={estDurationMin} onChange={setEstDurationMin} />
+      <TimeSlotSelect value={timeSlot} onChange={setTimeSlot} />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

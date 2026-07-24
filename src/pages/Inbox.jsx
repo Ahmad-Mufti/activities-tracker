@@ -15,6 +15,7 @@ export default function Inbox() {
   const { activeSemester } = useSemesters()
   const [items, setItems] = useState([])
   const [courses, setCourses] = useState([])
+  const [projects, setProjects] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [pilah, setPilah] = useState(null) // { item, type: 'task'|'event'|'habit' }
@@ -69,6 +70,16 @@ export default function Inbox() {
         if (!error) setCourses(data)
       })
   }, [activeSemester])
+
+  useEffect(() => {
+    supabase
+      .from('projects')
+      .select('id, name')
+      .eq('status', 'active')
+      .then(({ data, error }) => {
+        if (!error) setProjects(data)
+      })
+  }, [])
 
   async function markProcessed(item) {
     const { error } = await supabase.from('inbox_items').update({ processed: true }).eq('id', item.id)
@@ -148,6 +159,7 @@ export default function Inbox() {
           <TaskForm
             task={{ title: pilah.item.content }}
             courses={courses}
+            projects={projects}
             onDone={() => {
               markProcessed(pilah.item)
               setPilah(null)
@@ -159,6 +171,7 @@ export default function Inbox() {
         <Modal title="Jadi Event" onClose={() => setPilah(null)}>
           <EventForm
             event={{ title: pilah.item.content }}
+            projects={projects}
             onDone={() => {
               markProcessed(pilah.item)
               setPilah(null)

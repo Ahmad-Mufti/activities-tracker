@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Calendar, ListTodo, Repeat, Moon, Inbox as InboxIcon, LogOut } from 'lucide-react'
+import { LayoutDashboard, Calendar, ListTodo, FolderKanban, Repeat, Moon, Inbox as InboxIcon, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useNotificationReminders } from '../hooks/useNotificationReminders'
 import { useInboxCount } from '../hooks/useInboxCount'
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/jadwal', label: 'Jadwal', icon: Calendar },
   { to: '/tugas', label: 'Tugas', icon: ListTodo },
+  { to: '/proyek', label: 'Proyek', icon: FolderKanban },
   { to: '/kebiasaan', label: 'Kebiasaan', icon: Repeat },
   { to: '/rohani', label: 'Rohani', icon: Moon },
   { to: '/inbox', label: 'Inbox', icon: InboxIcon },

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useConfirm } from '../context/ConfirmContext'
+import { PriorityTierSelect, DurationMinutesField, TimeSlotSelect } from './PriorityFields'
 
 export default function HafalanPlanForm({ plan, onDone }) {
   const confirm = useConfirm()
@@ -11,6 +12,10 @@ export default function HafalanPlanForm({ plan, onDone }) {
   const [totalUnits, setTotalUnits] = useState(plan?.total_units ?? '')
   const [dailyPace, setDailyPace] = useState(plan?.daily_pace ?? 1)
   const [currentPosition, setCurrentPosition] = useState(plan?.current_position ?? 0)
+  // Setoran hafalan baru = paling lentur (default Rutin, dikorbankan lebih dulu saat sibuk).
+  const [priorityTier, setPriorityTier] = useState(plan?.priority_tier ?? 'rutin')
+  const [estDurationMin, setEstDurationMin] = useState(plan?.est_duration_min ?? '')
+  const [timeSlot, setTimeSlot] = useState(plan?.time_slot ?? '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -40,6 +45,9 @@ export default function HafalanPlanForm({ plan, onDone }) {
       total_units: Number(totalUnits),
       daily_pace: Number(dailyPace),
       current_position: Number(currentPosition) || 0,
+      priority_tier: priorityTier,
+      est_duration_min: estDurationMin === '' ? null : Number(estDurationMin),
+      time_slot: timeSlot || null,
     }
 
     const { error } = isEdit
@@ -125,6 +133,9 @@ export default function HafalanPlanForm({ plan, onDone }) {
         />
         <p className="mt-1 text-xs text-gray-400">Kosongkan / 0 kalau mulai dari awal.</p>
       </div>
+      <PriorityTierSelect value={priorityTier} onChange={setPriorityTier} />
+      <DurationMinutesField value={estDurationMin} onChange={setEstDurationMin} />
+      <TimeSlotSelect value={timeSlot} onChange={setTimeSlot} />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

@@ -52,7 +52,7 @@ PWA, real-time sync antar perangkat, solo, gratis total.
 - [x] Fase 8 — Dashboard "Hari Ini" + Jadwal Sholat
 - [x] Fase 9 — Quick-capture (Inbox)
 - [x] Fase 10 — Notifikasi Push sungguhan
-- [ ] Fase 11 — Anggaran waktu, prioritas & event pintar
+- [x] Fase 11 — Anggaran waktu, prioritas & event pintar
 - [ ] Fase 12 — Weekly Review
 - ~~Modul Workout~~ → 2 kebiasaan sederhana saja; modul split masuk Bagian 9 (Ditunda)
 
