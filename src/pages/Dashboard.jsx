@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, ListTodo, Repeat, RotateCcw, MapPin, Clock, Sunrise, CalendarClock, Gauge, AlertTriangle } from 'lucide-react'
+import { Calendar, ListTodo, Repeat, RotateCcw, MapPin, Clock, Sunrise, CalendarClock, Gauge, AlertTriangle, ClipboardCheck } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useSemesters } from '../context/SemesterContext'
@@ -243,6 +243,21 @@ export default function Dashboard() {
           </>
         )}
       </section>
+
+      {todayDow === (settings?.day_off_of_week ?? 7) && (
+        <Link
+          to="/review"
+          className="mt-4 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 hover:bg-blue-100"
+        >
+          <ClipboardCheck size={20} className="shrink-0 text-blue-600" />
+          <div>
+            <p className="text-sm font-semibold text-blue-800">Waktunya Weekly Review</p>
+            <p className="text-xs text-blue-600">
+              ±5 menit: bersihkan inbox, cek beban proyek & pace hafalan, lihat event pekan depan.
+            </p>
+          </div>
+        </Link>
+      )}
 
       {budget && (
         <section className="mt-4 rounded-xl border border-gray-200 bg-white p-4">

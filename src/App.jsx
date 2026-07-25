@@ -10,6 +10,7 @@ import Proyek from './pages/Proyek'
 import Kebiasaan from './pages/Kebiasaan'
 import Rohani from './pages/Rohani'
 import Inbox from './pages/Inbox'
+import WeeklyReview from './pages/WeeklyReview'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/kebiasaan" element={<Kebiasaan />} />
           <Route path="/rohani" element={<Rohani />} />
           <Route path="/inbox" element={<Inbox />} />
+          <Route path="/review" element={<WeeklyReview />} />
         </Route>
       </Route>
     </Routes>

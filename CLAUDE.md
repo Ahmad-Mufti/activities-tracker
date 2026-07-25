@@ -53,7 +53,7 @@ PWA, real-time sync antar perangkat, solo, gratis total.
 - [x] Fase 9 — Quick-capture (Inbox)
 - [x] Fase 10 — Notifikasi Push sungguhan
 - [x] Fase 11 — Anggaran waktu, prioritas & event pintar
-- [ ] Fase 12 — Weekly Review
+- [x] Fase 12 — Weekly Review
 - ~~Modul Workout~~ → 2 kebiasaan sederhana saja; modul split masuk Bagian 9 (Ditunda)
 
 > Update checklist ini setiap kali sebuah fase selesai & lolos tes.
