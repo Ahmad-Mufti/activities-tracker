@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { RotateCcw, BrainCog, BookOpen, Settings } from 'lucide-react'
+import { RotateCcw, BrainCog, BookOpen, Headphones, Settings } from 'lucide-react'
 import MurajaahTab from '../components/MurajaahTab'
 import HafalanTab from '../components/HafalanTab'
 import BacaTab from '../components/BacaTab'
+import KajianTab from '../components/KajianTab'
 import PengaturanTab from '../components/PengaturanTab'
 
 const TABS = [
   { key: 'muraja', label: "Muraja'ah", icon: RotateCcw, Component: MurajaahTab },
   { key: 'hafalan', label: 'Hafalan', icon: BrainCog, Component: HafalanTab },
   { key: 'baca', label: 'Baca', icon: BookOpen, Component: BacaTab },
+  { key: 'kajian', label: 'Kajian', icon: Headphones, Component: KajianTab },
   { key: 'pengaturan', label: 'Pengaturan', icon: Settings, Component: PengaturanTab },
 ]
 

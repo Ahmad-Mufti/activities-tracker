@@ -49,6 +49,7 @@ export default function EventForm({ event, projects, onDone }) {
         { data: habits },
         { data: readingPlans },
         { data: hafalanPlans },
+        { data: kajianSeries },
         { data: tasks },
       ] = await Promise.all([
         activeSemester
@@ -62,6 +63,7 @@ export default function EventForm({ event, projects, onDone }) {
         supabase.from('habits').select('est_duration_min'),
         supabase.from('reading_plans').select('total_units, current_position, est_duration_min'),
         supabase.from('hafalan_plans').select('total_units, current_position, est_duration_min'),
+        supabase.from('kajian_series').select('total_sessions, current_session, est_duration_min'),
         supabase.from('tasks').select('status, planned_for, due_date, est_duration_min'),
       ])
       if (cancelled) return
@@ -76,6 +78,7 @@ export default function EventForm({ event, projects, onDone }) {
         habits: habits ?? [],
         readingPlans: readingPlans ?? [],
         hafalanPlans: hafalanPlans ?? [],
+        kajianSeries: kajianSeries ?? [],
         tasks: tasks ?? [],
       })
     }
@@ -117,6 +120,7 @@ export default function EventForm({ event, projects, onDone }) {
       habits: dayContext.habits,
       readingPlans: dayContext.readingPlans,
       hafalanPlans: dayContext.hafalanPlans,
+      kajianSeries: dayContext.kajianSeries,
       tasks: dayContext.tasks,
       dateISO: eventDate,
       isDayOff,

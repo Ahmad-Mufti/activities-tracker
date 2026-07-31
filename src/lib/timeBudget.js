@@ -153,8 +153,8 @@ export function computeFreeMinutes({ dateISO, dow, sleepHours, courses, exceptio
   return { free, sleepMin, courseMin, recurMin, eventMin, projectMin }
 }
 
-// total_rencana hari-X (6C): kebiasaan + baca + hafalan (setoran baru) + tugas rencana/deadline dekat.
-export function computeTotalRencana({ habits, readingPlans, hafalanPlans, tasks, dateISO, isDayOff }) {
+// total_rencana hari-X (6C): kebiasaan + baca + hafalan (setoran baru) + kajian + tugas rencana/deadline dekat.
+export function computeTotalRencana({ habits, readingPlans, hafalanPlans, kajianSeries, tasks, dateISO, isDayOff }) {
   const habitMin = (habits ?? []).reduce((sum, h) => sum + Number(h.est_duration_min ?? 0), 0)
 
   const readingMin = (readingPlans ?? [])
@@ -167,13 +167,17 @@ export function computeTotalRencana({ habits, readingPlans, hafalanPlans, tasks,
         .filter((p) => p.total_units == null || p.current_position < p.total_units)
         .reduce((sum, p) => sum + Number(p.est_duration_min ?? 0), 0)
 
+  const kajianMin = (kajianSeries ?? [])
+    .filter((s) => s.total_sessions == null || s.current_session < s.total_sessions)
+    .reduce((sum, s) => sum + Number(s.est_duration_min ?? 0), 0)
+
   const besok = addDays(dateISO, 1)
   const taskMin = (tasks ?? [])
     .filter((t) => t.status !== 'done')
     .filter((t) => t.planned_for === dateISO || (t.due_date && toLocalISO(new Date(t.due_date)) <= besok))
     .reduce((sum, t) => sum + Number(t.est_duration_min ?? 0), 0)
 
-  return habitMin + readingMin + hafalanMin + taskMin
+  return habitMin + readingMin + hafalanMin + kajianMin + taskMin
 }
 
 // Pengecekan per-slot (6C + 6D): kapasitas slot dikurangi overlap kuliah/event, dibanding

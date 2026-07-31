@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [dueTasks, setDueTasks] = useState([])
   const [uncheckedHabits, setUncheckedHabits] = useState([])
   const [hafalanToday, setHafalanToday] = useState([])
+  const [kajianToday, setKajianToday] = useState([])
   const [murajaUnits, setMurajaUnits] = useState([])
   const [murajaTotal, setMurajaTotal] = useState(0)
   const [settings, setSettings] = useState(null)
@@ -80,6 +81,9 @@ export default function Dashboard() {
     const { data: recurringEvents } = await supabase.from('recurring_events').select('*')
     const { data: projects } = await supabase.from('projects').select('*').eq('status', 'active')
     const { data: readingPlans } = await supabase.from('reading_plans').select('*')
+    const { data: kajianSeries } = await supabase.from('kajian_series').select('*')
+    const activeKajian = (kajianSeries ?? []).filter((s) => s.total_sessions == null || s.current_session < s.total_sessions)
+    setKajianToday(activeKajian)
 
     const startOfToday = new Date(`${today}T00:00:00`).toISOString()
     const startOfDayAfterTomorrow = new Date(`${addDays(today, 2)}T00:00:00`).toISOString()
@@ -141,6 +145,7 @@ export default function Dashboard() {
       habits: habits ?? [],
       readingPlans: readingPlans ?? [],
       hafalanPlans: activeHafalan,
+      kajianSeries: activeKajian,
       tasks: tasksToday,
       dateISO: today,
       isDayOff,
@@ -153,7 +158,7 @@ export default function Dashboard() {
         calcMethod: settingsRow.calc_method,
         sleepHours: settingsRow.sleep_hours,
       })
-      const items = [...(habits ?? []), ...readingPlans, ...activeHafalan, ...tasksToday]
+      const items = [...(habits ?? []), ...readingPlans, ...activeHafalan, ...activeKajian, ...tasksToday]
       slots = computeSlotUsage({ slotBoundaries, courses, exceptions: exceptions ?? [], dow: todayDow, dateISO: today, events, items })
     }
     setBudget({ free, rencana, slots, floorModeActive: rencana > free })
@@ -179,6 +184,7 @@ export default function Dashboard() {
       'recurring_events',
       'projects',
       'reading_plans',
+      'kajian_series',
       'schedule_exceptions',
     ]
     const channels = tables.map((table) =>
@@ -437,6 +443,21 @@ export default function Dashboard() {
                       </p>
                     )
                   })}
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-500">Kajian hari ini</p>
+              {kajianToday.length === 0 ? (
+                <p className="text-sm text-gray-400">Tidak ada kajian yang sedang diikuti.</p>
+              ) : (
+                <div className="mt-1 space-y-1">
+                  {kajianToday.map((s) => (
+                    <p key={s.id} className="text-sm text-gray-700">
+                      <span className="font-medium">{s.name}</span>: sesi ke-{s.current_session + 1}
+                      {s.total_sessions != null && ` / ${s.total_sessions}`}
+                    </p>
+                  ))}
                 </div>
               )}
             </div>
